@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from typing import List
 from datetime import datetime
 from firebase_connector import FirebaseConnector
+import pytz # LIB para teste de timezone, pode ser removida depois de usar o microcontrolador real, já que ele deve enviar a data formatada corretamente.
 
 app = FastAPI(redirect_slashes=False)
 
@@ -12,18 +13,21 @@ db = FirebaseConnector(
 
 @app.post("/dados")
 async def receber_dados(dados: dict):
-    data_str = dados.get("data")
+    # Esse código deve ser descomentado caso seja utilizado um microcontrolador verdadeiro
+    # data_str = dados.get("data")
 
-    for fmt in ("%Y/%m/%d", "%Y-%m-%d"):
-        try:
-            data_obj = datetime.strptime(data_str, fmt)
-            break
-        except ValueError:
-            continue
-    else:
-        return {"error": f"Formato de data inválido: {data_str}"}
+    # for fmt in ("%Y/%m/%d", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
+    #    try:
+    #        data_obj = datetime.strptime(data_str, fmt)
+    #        break
+    #    except ValueError:
+    #        continue
+    # else:
+    #    return {"error": f"Formato de data inválido: {data_str}"}
 
-    data_formatada = data_obj.strftime("%d/%m/%Y")
+    # Data formatada para pegar o timestamp atual, já que estamos simulando um microcontrolador
+    fuso = pytz.timezone("America/Sao_Paulo")
+    data_formatada = datetime.now(fuso).strftime("%d/%m/%Y %H:%M:%S")
 
     registro = {
         "endereco": dados.get("endereco"),
