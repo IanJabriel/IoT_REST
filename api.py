@@ -29,16 +29,16 @@ async def receber_dados(dados: dict):
     fuso = pytz.timezone("America/Sao_Paulo")
     data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
 
-    registro = {
+    payload = {
         "endereco": dados.get("endereco"),
         "data": data_formatada,
         "corrente": dados.get("corrente"),
         "dispositivo_id": dados.get("id")
     }
 
-    chave = db.push("/registro", registro)
+    chave = db.push("/registro", payload)
 
-    return {"message": "Dados recebidos com sucesso", "registro": registro, "chave": chave}
+    return {"message": "Dados recebidos com sucesso", "payload": payload, "chave": chave}
 
 @app.get("/dados")
 async def obter_dados():
