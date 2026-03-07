@@ -27,7 +27,7 @@ async def receber_dados(dados: dict):
 
     # Data formatada para pegar o timestamp atual, já que estamos simulando um microcontrolador
     fuso = pytz.timezone("America/Sao_Paulo")
-    data_formatada = datetime.now(fuso).strftime("%d/%m/%Y %H:%M:%S")
+    data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
 
     registro = {
         "endereco": dados.get("endereco"),
