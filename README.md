@@ -16,7 +16,7 @@ Recebe dados do sensor IoT e armazena no Firebase Realtime Database.
 {
   "endereco": "sensor_01",
   "corrente": 12.5,
-  "id": 1
+  "id": "1"
 }
 ```
 
@@ -30,12 +30,12 @@ Recebe dados do sensor IoT e armazena no Firebase Realtime Database.
 {
   "message": "Dados recebidos com sucesso",
   "payload": {
+    "_key": "-NxAbC123def",
     "endereco": "sensor_01",
     "data": "2026-03-07 14:30:00",
     "corrente": 12.5,
-    "dispositivo_id": 1
-  },
-  "chave": "-NxAbC123def"
+    "dispositivo_id": "1"
+  }
 }
 ```
 
@@ -51,10 +51,10 @@ Retorna todos os registros armazenados no Firebase.
   "database": [
     {
       "_key": "-NxAbC123def",
-      "endereco": "sensor_01",
-      "data": "2026-03-07 14:30:00",
       "corrente": 12.5,
-      "dispositivo_id": 1
+      "data": "2026-03-07 14:30:00",
+      "dispositivo_id": "1",
+      "endereco": "sensor_01"
     }
   ]
 }
