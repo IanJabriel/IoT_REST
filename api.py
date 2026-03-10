@@ -1,46 +1,54 @@
-from fastapi import FastAPI
-from typing import List
+from fastapi import FastAPI, BackgroundTasks
 from datetime import datetime
 from firebase_connector import FirebaseConnector
-import pytz # LIB para teste de timezone, pode ser removida depois de usar o microcontrolador real, já que ele deve enviar a data formatada corretamente.
+from tagoio_connector import send_to_tago
+from dotenv import load_dotenv
+import pytz
+import os
+
+load_dotenv()
 
 app = FastAPI(redirect_slashes=False)
 
+# Conexão com o Firebase Realtime Database
 db = FirebaseConnector(
-    database_url="https://navarro-iot-default-rtdb.firebaseio.com/",
-    credentials_path="serviceAccountKey.json",
+    database_url=os.environ["FIREBASE_DATABASE_URL"],
+    credentials_path=os.environ["FIREBASE_CREDENTIALS_PATH"],
 )
 
-@app.post("/dados")
-async def receber_dados(dados: dict):
-    # Esse código deve ser descomentado caso seja utilizado um microcontrolador verdadeiro
-    # data_str = dados.get("data")
-
+@app.post("/data")
+async def save_data(data: dict, background_tasks: BackgroundTasks):
+    # Código para microcontrolador real — descomente quando não estiver simulando
+    # date_str = data.get("data")
     # for fmt in ("%Y/%m/%d", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ"):
-    #    try:
-    #        data_obj = datetime.strptime(data_str, fmt)
-    #        break
-    #    except ValueError:
-    #        continue
+    #     try:
+    #         date_obj = datetime.strptime(date_str, fmt)
+    #         break
+    #     except ValueError:
+    #         continue
     # else:
-    #    return {"error": f"Formato de data inválido: {data_str}"}
+    #     return {"error": f"Formato de data inválido: {date_str}"}
 
-    # Data formatada para pegar o timestamp atual, já que estamos simulando um microcontrolador
-    fuso = pytz.timezone("America/Sao_Paulo")
-    data_formatada = datetime.now(fuso).strftime("%Y-%m-%d %H:%M:%S")
+    # Usa o timestamp atual no fuso de São Paulo, pois estamos simulando o microcontrolador
+    timezone = pytz.timezone("America/Sao_Paulo")
+    formatted_date = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
 
     payload = {
-        "endereco": dados.get("endereco"),
-        "data": data_formatada,
-        "corrente": dados.get("corrente"),
-        "dispositivo_id": dados.get("id")
+        "endereco": data.get("endereco"),
+        "data": formatted_date,
+        "corrente": data.get("corrente"),
+        "dispositivo_id": data.get("id")
     }
 
-    chave = db.push("/registro", payload)
+    # Salva no Firebase e retorna a chave gerada
+    key = db.push("/register", payload)
 
-    return {"message": "Dados recebidos com sucesso", "payload": payload, "chave": chave}
+    background_tasks.add_task(send_to_tago, payload)
 
-@app.get("/dados")
-async def obter_dados():
-    todos = db.get_all("/registro")
-    return {"message": "Dados do Firebase", "database": todos}
+    return {"message": "Dados recebidos com sucesso", "payload": payload, "chave": key}
+
+@app.get("/data")
+async def get_data():
+    # Busca todos os registros no Firebase
+    records = db.get_all("/register")
+    return {"message": "Dados do Firebase", "database": records}

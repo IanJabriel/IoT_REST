@@ -6,7 +6,7 @@ API REST desenvolvida com **FastAPI** para receber e consultar dados de sensores
 
 ## Endpoints
 
-### `POST /dados`
+### `POST /data`
 
 Recebe dados do sensor IoT e armazena no Firebase Realtime Database.
 
@@ -21,14 +21,15 @@ Recebe dados do sensor IoT e armazena no Firebase Realtime Database.
 ```
 
 - O campo `data` é gerado automaticamente pela API com o timestamp atual no fuso horário de São Paulo (`America/Sao_Paulo`), no formato `YYYY-MM-DD HH:MM:SS`.
-- O registro é salvo no caminho `/registro` do Firebase com uma chave automática.
+- O registro é salvo no caminho `/register` do Firebase com uma chave automática.
+- Os dados também são enviados ao **TagoIO** em background para visualização em dashboard.
 
 **Resposta:**
 
 ```json
 {
   "message": "Dados recebidos com sucesso",
-  "registro": {
+  "payload": {
     "endereco": "sensor_01",
     "data": "2026-03-07 14:30:00",
     "corrente": 12.5,
@@ -38,7 +39,7 @@ Recebe dados do sensor IoT e armazena no Firebase Realtime Database.
 }
 ```
 
-### `GET /dados`
+### `GET /data`
 
 Retorna todos os registros armazenados no Firebase.
 
@@ -102,6 +103,7 @@ A documentação interativa (Swagger) pode ser acessada em `http://localhost:800
 - **FastAPI**
 - **Uvicorn**
 - **Firebase Admin SDK** (Realtime Database)
+- **TagoIO** (envio de dados para dashboard)
 - **pytz**
 
 ---
@@ -112,7 +114,10 @@ A documentação interativa (Swagger) pode ser acessada em `http://localhost:800
 IoT_REST/
 ├── api.py                  # Código principal da API (rotas)
 ├── firebase_connector.py   # Conector do Firebase Realtime Database
+├── tagoio_connector.py     # Envio de dados ao TagoIO
 ├── serviceAccountKey.json  # Credenciais do Firebase (não versionar)
+├── .env                    # Variáveis de ambiente (não versionar)
+├── .env.example            # Template das variáveis de ambiente
 ├── requirements.txt        # Dependências do projeto
 └── README.md
 ```
